@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Runtime.Intrinsics.X86;
 using System.Security.AccessControl;
 
 Console.WriteLine("Hello, World!");
@@ -35,6 +36,9 @@ List<FiscalProfile> profiles = new List<FiscalProfile>();
 profiles.Add(new FiscalProfile("Matt", "Edabit", 'M', "1/1/1990"));
 profiles.Add(new FiscalProfile("Helen", "Yu", 'F', "1/12/1950"));
 profiles.Add(new FiscalProfile("Micky", "Mouse", 'M', "16/12/1928"));
+profiles.Add(new FiscalProfile("Samantha", "Davidson", 'F', "20/2/1602"));
+profiles.Add(new FiscalProfile("Bob", "Davidson", 'M', "1/1/1111"));
+profiles.Add(new FiscalProfile("Al", "Yankovic", 'M', "23/10/1959"));
 
 // Get 
 foreach (FiscalProfile profile in profiles)
@@ -61,15 +65,72 @@ public class FiscalProfile
 
     public string GetFiscalCode()
     {
+        return $"{GetSurnameSegement()} {GetFirstnameSegment()} {GetThirdSection()}";
+    }
+
+    private string GetThirdSection()
+    {
+        return "";
+    }
+
+    private string GetFirstnameSegment()
+    {
         string code = "";
+
+        // 3 consonants from first name
+        code += GetStringWithoutVowels(Firstname.ToUpper());
         
+        // if more than 3: 1st, 3rd, 4th
+        if (code.Length > 3)
+        {
+            code = code.Remove(1, 1);
+        }
+        
+        // if less than 3: replace with vowels
+        if (code.Length < 3)
+        {
+            code += GetStringWithoutConsonants(Firstname.ToUpper());
+        }
+        
+        // if still insufficient replace with Xs
+        code = FillWithXs(code);
+        
+        // select first 3
+        return code.Substring(0, 3);
+    }
+
+    private string GetSurnameSegement()
+    {
+        string code = "";
         // 3 consonants from lastname
-        // if insufficient cons, add vowels AFTER cons
-        // if insufficient vowels, add Xs
         code += GetStringWithoutVowels(Lastname.ToUpper());
         
-        return code.ToUpper();
+        // if insufficient cons, add vowels AFTER cons
+        if (code.Length < 3)
+        {
+            code += GetStringWithoutConsonants(Lastname.ToUpper());
+        }
+        
+        // if insufficient vowels, add Xs
+        code = FillWithXs(code);
+        
+        // select first 3
+        return code.Substring(0, 3);
     }
+
+    private string GetStringWithoutConsonants(string input)
+    {
+        string output = "";
+        foreach (char c in input)
+        {
+            if (c is 'A' or 'E' or 'I' or 'O' or 'U')
+            {
+                output += c;
+            }
+        }
+        return output;
+    }
+
     private string GetStringWithoutVowels(string input)
     {
         return input
@@ -78,5 +139,14 @@ public class FiscalProfile
             .Replace("I", string.Empty)
             .Replace("O", string.Empty)
             .Replace("U", string.Empty);
+    }
+
+    private string FillWithXs(string input)
+    {
+        while (input.Length < 3)
+        {
+            input += 'X';
+        }
+        return input;
     }
 }
