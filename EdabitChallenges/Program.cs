@@ -34,7 +34,7 @@ For females take the day of birth and sum 40 to it (any 9th day -> 49 | any 20th
 List<FiscalProfile> profiles = new List<FiscalProfile>();
 profiles.Add(new FiscalProfile("Matt", "Edabit", 'M', "1/1/1990"));
 profiles.Add(new FiscalProfile("Helen", "Yu", 'F', "1/12/1950"));
-profiles.Add(new FiscalProfile("Micky", "Mous", 'M', "16/12/1928"));
+profiles.Add(new FiscalProfile("Micky", "Mouse", 'M', "16/12/1928"));
 
 // Get 
 foreach (FiscalProfile profile in profiles)
@@ -61,6 +61,22 @@ public class FiscalProfile
 
     public string GetFiscalCode()
     {
-        return "42069";
+        string code = "";
+        
+        // 3 consonants from lastname
+        // if insufficient cons, add vowels AFTER cons
+        // if insufficient vowels, add Xs
+        code += GetStringWithoutVowels(Lastname.ToUpper());
+        
+        return code.ToUpper();
+    }
+    private string GetStringWithoutVowels(string input)
+    {
+        return input
+            .Replace("A", string.Empty)
+            .Replace("E", string.Empty)
+            .Replace("I", string.Empty)
+            .Replace("O", string.Empty)
+            .Replace("U", string.Empty);
     }
 }
