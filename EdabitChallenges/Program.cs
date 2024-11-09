@@ -33,11 +33,11 @@ For females take the day of birth and sum 40 to it (any 9th day -> 49 | any 20th
 
 //Initialize Objects
 List<FiscalProfile> profiles = new List<FiscalProfile>();
-profiles.Add(new FiscalProfile("Matt", "Edabit", 'M', "1/1/1990"));
+profiles.Add(new FiscalProfile("Matt", "Edabit", 'M', "1/1/1900"));
 profiles.Add(new FiscalProfile("Helen", "Yu", 'F', "1/12/1950"));
 profiles.Add(new FiscalProfile("Micky", "Mouse", 'M', "16/12/1928"));
 profiles.Add(new FiscalProfile("Samantha", "Davidson", 'F', "20/2/1602"));
-profiles.Add(new FiscalProfile("Bob", "Davidson", 'M', "1/1/1111"));
+profiles.Add(new FiscalProfile("Bob", "Davidson", 'M', "1/1/1"));
 profiles.Add(new FiscalProfile("Al", "Yankovic", 'M', "23/10/1959"));
 
 // Get 
@@ -65,12 +65,73 @@ public class FiscalProfile
 
     public string GetFiscalCode()
     {
-        return $"{GetSurnameSegement()} {GetFirstnameSegment()} {GetThirdSection()}";
+        return $"{GetSurnameSegement()}{GetFirstnameSegment()}{GetDOBAndSexSegment()}";
     }
 
-    private string GetThirdSection()
+    private string GetDOBAndSexSegment()
     {
-        return "";
+        string code = "";
+        
+        // 2 numbers, 1 letter, 2 numbers
+        
+        // last 2 digits of birth year
+        string[] splitDate = DateOfBirth.Split('/');
+
+        code += splitDate[2].PadLeft(2, '0');
+        code = code.Substring(code.Length - 2, 2);
+        
+        // letter of birth month (see table...)
+        code += GetLetterAssociatedWithMonth(int.Parse(splitDate[1]));
+        
+        // if male : day of birth, 0X if less than 10
+        // if female : day of birth + 40
+        code += Sex == 'M' ? GetMaleOption(splitDate[0]) : GetFemaleOption(splitDate[0]);
+        
+        return code;
+    }
+
+    private string GetFemaleOption(string dayOfBirth)
+    {
+        // if female : day of birth + 40
+        return (int.Parse(dayOfBirth) + 40).ToString();
+    }
+
+    private string GetMaleOption(string dayOfBirth)
+    {
+        // if male : day of birth, 0X if less than 10
+        return dayOfBirth.PadLeft(2, '0');
+    }
+
+    private char GetLetterAssociatedWithMonth(int month)
+    {
+        switch (month)
+        {
+            case 1:
+                return 'A';
+            case 2:
+                return 'B';
+            case 3:
+                return 'C';
+            case 4:
+                return 'D';
+            case 5:
+                return 'E';
+            case 6:
+                return 'H';
+            case 7:
+                return 'L';
+            case 8:
+                return 'M';
+            case 9:
+                return 'P';
+            case 10:
+                return 'R';
+            case 11:
+                return 'S';
+            case 12:
+                return 'T';
+        }
+        throw new InvalidDataException("Invalid month");
     }
 
     private string GetFirstnameSegment()
@@ -93,7 +154,7 @@ public class FiscalProfile
         }
         
         // if still insufficient replace with Xs
-        code = FillWithXs(code);
+        code = code.PadLeft(3, 'X');
         
         // select first 3
         return code.Substring(0, 3);
@@ -112,7 +173,7 @@ public class FiscalProfile
         }
         
         // if insufficient vowels, add Xs
-        code = FillWithXs(code);
+        code = code.PadLeft(3, 'X');
         
         // select first 3
         return code.Substring(0, 3);
@@ -139,14 +200,5 @@ public class FiscalProfile
             .Replace("I", string.Empty)
             .Replace("O", string.Empty)
             .Replace("U", string.Empty);
-    }
-
-    private string FillWithXs(string input)
-    {
-        while (input.Length < 3)
-        {
-            input += 'X';
-        }
-        return input;
     }
 }
